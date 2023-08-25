@@ -7,6 +7,7 @@ const crearUsuario = async (req, res) => {
 	try {
 		//validar si el email del usuario existe en la base de datos
 		let usuario = await Usuarios.findOne({ email });
+		console.log(usuario);
 
 		if (usuario) {
 			return res.json({
@@ -29,8 +30,35 @@ const crearUsuario = async (req, res) => {
 	}
 };
 
-const loginUsuario = (req, res) => {
-	res.send('Usuario Logueado');
+const loginUsuario = async (req, res) => {
+	try {
+		const { email, password } = req.body;
+
+		//validacion si existe el usuario
+		let usuario = await Usuarios.findOne({ email });
+
+		//si el usuario no existe
+		if (!usuario) {
+			return res.json({
+				msg: 'El Email o la contraseña es incorrectas',
+			});
+		}
+
+		//confirmar contraseñas
+		const validarPassword = bcrypt.compareSync(password, usuario.password);
+
+		if (!validarPassword) {
+			res.json({
+				msg: 'El email o la contraseña es incorrectos',
+			});
+		}
+
+		res.json({
+			msg: 'Usuario logueado',
+		});
+	} catch (error) {
+		console.log(error);
+	}
 };
 
 module.exports = {
