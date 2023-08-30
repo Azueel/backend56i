@@ -1,28 +1,36 @@
 const express = require('express');
 const { crearUsuario, loginUsuario } = require('../controllers/auth.controllers');
+const { check } = require('express-validator');
+const { validarCampos } = require('../middlewares/validarCampos');
 
 //va a ser el nombre del router que definamos
 const routerAuth = express.Router();
 
-//peticion get       Req = solicitud, va a estar esperando datos del FrontEnd
-routerAuth.post('/crearUsuario', crearUsuario);
+routerAuth.post(
+	'/crearUsuario',
+	[
+		check('name', 'El nombre es obligatorio').not().isEmpty(),
+		check('email', 'El email no es valido').not().isEmpty().isEmail(),
+		check('password', 'la contraseña debe ser mayor a 5 caracteres').isLength({
+			min: 5,
+		}),
 
-routerAuth.post('/login', loginUsuario);
+		validarCampos,
+	],
+	crearUsuario
+);
 
-// //peticion post           //Res = enviar, vamos a enviar una respuesta al front
-// routerAuth.post('/post', (req, res) => {
-// 	res.send('peticion post enviada');
-// });
+routerAuth.post(
+	'/login',
+	[
+		check('email', 'El email no es valido').not().isEmpty().isEmail(),
+		check('password', 'la contraseña debe ser mayor a 5 caracteres').isLength({
+			min: 5,
+		}),
+		validarCampos,
+	],
 
-// //peticion put
-// routerAuth.put('/actualizar', (req, res) => {
-// 	res.send('peticion put actualizada');
-// });
+	loginUsuario
+);
 
-// // peticion delete
-// routerAuth.delete('/', (req, res) => {
-// 	res.send('peticion eliminada');
-// });
-
-//module.exports es como vamos a exportar nuestros archivos
 module.exports = routerAuth;
